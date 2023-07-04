@@ -55,3 +55,8 @@ invite slack app
 and use like 
 
 @bito_app summarize in short: java vs javascript 
+
+install and authenticate bito on server where fast api will be running
+
+you can also use curl call like 
+curl -s -H 'Content-Type: application/json' -d '{"message":"tell me a joke"}' 'https://<ngrok-end-point>/execute_command_post' | echo -e $(cat)
