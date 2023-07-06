@@ -41,10 +41,11 @@ async def execute_command(channel_id: str, message: str, user_id: str):
 
 
 def post_message_to_slack(channel_id: str, text: str):
+    logger.info("******************posting************************")
     url = "https://slack.com/api/chat.postMessage"
 
     headers = {
-        "Authorization": "Bearer ",
+        "Authorization": "Bearer token",
         "Content-Type": "application/json"
     }
 
@@ -86,7 +87,7 @@ async def handle_slack_events(request_data: dict):
                 pattern = "<@U[A-Z0-9]+>\s*"
                 bot_id = re.search(pattern, message).group()
                 message = re.sub(re.escape(bot_id), "", message)
-                await execute_command(channel_id, message, bot_id)  # pass user_id here
+                await execute_command(channel_id, message, event['user'])  # pass user_id here
     return Response(status_code=200)
 
 @app.post("/execute_command_post")
