@@ -19,11 +19,18 @@ class Item(BaseModel):
     message: str
 
 @app.post("/execute_command")
-async def execute_command(channel_id: str, message: str):
+async def execute_command(channel_id: str, message: str, user_id: str):
     logger.info(channel_id)
     logger.info(message)
+    logger.info(user_id)  # Log the user_id
     logger.info("logging command")
-    command = f'echo "{message}" | bito'
+    user_id=user_id.lower().strip().strip("<").strip(">")
+    # Open a file named after the user_id, write the message to it, and close the file
+
+    if f"{message}".startswith("##bito"):
+        command=f'echo "{message}" | bito -c {user_id}.txt'
+    else:
+        command = f'echo "{message}" | bito'
     logger.info(command)
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
     output, error = process.communicate()
@@ -32,11 +39,12 @@ async def execute_command(channel_id: str, message: str):
 
     post_message_to_slack(channel_id, str(output.decode('utf-8').strip()))
 
+
 def post_message_to_slack(channel_id: str, text: str):
     url = "https://slack.com/api/chat.postMessage"
 
     headers = {
-        "Authorization": "Bearer <>",
+        "Authorization": "Bearer xoxb-3667413752-5522131842101-mBuYeaLSABNn3BAKEGNqb7WV",
         "Content-Type": "application/json"
     }
 
@@ -78,7 +86,7 @@ async def handle_slack_events(request_data: dict):
                 pattern = "<@U[A-Z0-9]+>\s*"
                 bot_id = re.search(pattern, message).group()
                 message = re.sub(re.escape(bot_id), "", message)
-                await execute_command(channel_id, message)
+                await execute_command(channel_id, message, bot_id)  # pass user_id here
     return Response(status_code=200)
 
 @app.post("/execute_command_post")
